@@ -1,0 +1,28 @@
+body {
+  font-family: monospace;
+  background: #000;
+  color: #fff;
+  text-align: center;
+  transition: 0.3s;
+}
+
+.light {
+  background: #fff;
+  color: #000;
+}
+
+.controls {
+  margin: 20px;
+}
+
+#dropZone {
+  border: 2px dashed gray;
+  padding: 20px;
+  margin: 20px;
+}
+
+pre {
+  font-size: 8px;
+  line-height: 8px;
+  white-space: pre;
+}

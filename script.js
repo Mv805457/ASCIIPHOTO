@@ -1,21 +1,55 @@
+// 🔐 SUPABASE CONFIG
+const supabaseUrl = "https://wiapawafqpmacvpxabvc.supabase.co";
+const supabaseKey = "sb_publishable_BRBI55q9dCO0ixG4JKtUhQ_JoFqATSO";
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+// UI
+const googleLogin = document.getElementById("googleLogin");
+const logoutBtn = document.getElementById("logoutBtn");
+const appDiv = document.getElementById("app");
+
 const upload = document.getElementById("upload");
 const output = document.getElementById("output");
 const densitySlider = document.getElementById("density");
 const customCharsInput = document.getElementById("customChars");
+const fontSelect = document.getElementById("fontSelect");
 const themeToggle = document.getElementById("themeToggle");
 const downloadPNG = document.getElementById("downloadPNG");
-const terminalExport = document.getElementById("terminalExport");
+const saveBtn = document.getElementById("saveBtn");
+const historyBtn = document.getElementById("historyBtn");
 const webcamBtn = document.getElementById("webcamBtn");
-const captureBtn = document.getElementById("captureBtn");
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const video = document.getElementById("webcam");
-const dropZone = document.getElementById("dropZone");
-const fontSelect = document.getElementById("fontSelect");
 
 let defaultChars = "@#S%?*+;:,. ";
-let webcamStream = null;
+let currentOriginalBlob = null;
 
+// 🟢 GOOGLE LOGIN
+googleLogin.onclick = async () => {
+  await supabaseClient.auth.signInWithOAuth({
+    provider: "google"
+  });
+};
+
+logoutBtn.onclick = async () => {
+  await supabaseClient.auth.signOut();
+  location.reload();
+};
+
+// 🟢 CHECK SESSION
+async function checkUser() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    document.getElementById("authSection").style.display = "none";
+    appDiv.style.display = "block";
+    logoutBtn.style.display = "inline-block";
+  }
+}
+checkUser();
+
+// 🟢 ASCII PROCESSING
 function processImage(img) {
 
   const density = parseInt(densitySlider.value);
@@ -39,8 +73,9 @@ function processImage(img) {
       const g = data[index + 1];
       const b = data[index + 2];
 
-      const bright = brightness(r, g, b);
-      const char = getChar(bright, chars);
+      const brightness = 0.299*r + 0.587*g + 0.114*b;
+      const charIndex = Math.floor((brightness / 255) * (chars.length - 1));
+      const char = chars[charIndex];
 
       ascii += `<span style="color: rgb(${r},${g},${b})">${char}</span>`;
     }
@@ -49,9 +84,13 @@ function processImage(img) {
 
   output.style.fontFamily = fontSelect.value;
   output.innerHTML = ascii;
+
+  canvas.toBlob(blob => {
+    currentOriginalBlob = blob;
+  }, "image/png");
 }
 
-/* IMAGE UPLOAD */
+// 🟢 IMAGE UPLOAD
 upload.addEventListener("change", e => {
   const reader = new FileReader();
   reader.onload = ev => {
@@ -62,56 +101,114 @@ upload.addEventListener("change", e => {
   reader.readAsDataURL(e.target.files[0]);
 });
 
-/* DRAG & DROP */
-dropZone.addEventListener("dragover", e => e.preventDefault());
-
-dropZone.addEventListener("drop", e => {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = new Image();
-    img.onload = () => processImage(img);
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-});
-
-/* THEME */
-themeToggle.addEventListener("click", () => {
+// 🟢 THEME
+themeToggle.onclick = () => {
   document.body.classList.toggle("light");
-});
+};
 
-/* DOWNLOAD PNG */
-downloadPNG.addEventListener("click", () => {
-  html2canvas(output).then(canvas => {
-    const link = document.createElement("a");
-    link.download = "ascii.png";
-    link.href = canvas.toDataURL();
-    link.click();
-  });
-});
-
-/* DOWNLOAD TXT */
-terminalExport.addEventListener("click", () => {
-  const blob = new Blob([output.innerText], { type: "text/plain" });
+// 🟢 DOWNLOAD PNG
+downloadPNG.onclick = async () => {
+  const asciiCanvas = await html2canvas(output);
   const link = document.createElement("a");
-  link.download = "ascii.txt";
-  link.href = URL.createObjectURL(blob);
+  link.download = "ascii.png";
+  link.href = asciiCanvas.toDataURL();
   link.click();
-});
+};
 
-/* WEBCAM */
-webcamBtn.addEventListener("click", async () => {
-  webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
-  video.srcObject = webcamStream;
-  video.hidden = false;
-});
+// 🟢 SAVE
+saveBtn.onclick = async () => {
 
-/* CAPTURE FRAME */
-captureBtn.addEventListener("click", () => {
-  if (video.srcObject) {
-    processImage(video);
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) return alert("Not logged in.");
+  if (!currentOriginalBlob) return alert("No image.");
+
+  const originalName = `${user.id}-orig-${Date.now()}.png`;
+  const asciiName = `${user.id}-ascii-${Date.now()}.png`;
+
+  // Upload original
+  await supabaseClient.storage
+    .from("original-images")
+    .upload(originalName, currentOriginalBlob);
+
+  // Upload ASCII
+  const asciiCanvas = await html2canvas(output);
+  const asciiBlob = await new Promise(resolve =>
+    asciiCanvas.toBlob(resolve, "image/png")
+  );
+
+  await supabaseClient.storage
+    .from("ascii-images")
+    .upload(asciiName, asciiBlob);
+
+  // Insert DB
+  await supabaseClient.from("captures").insert([
+    {
+      user_id: user.id,
+      original_path: originalName,
+      ascii_path: asciiName,
+      density: parseInt(densitySlider.value),
+      character_set: customCharsInput.value || defaultChars
+    }
+  ]);
+
+  alert("Saved!");
+};
+
+// 🟢 HISTORY
+historyBtn.onclick = async () => {
+
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  const { data, error } = await supabaseClient
+    .from("captures")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("DB error:", error);
+    return;
   }
-});
+
+  output.innerHTML = "";
+
+  for (const item of data) {
+
+    const { data: originalData, error: originalError } =
+      await supabaseClient.storage
+        .from("original-images")
+        .createSignedUrl(item.original_path, 60);
+
+    const { data: asciiData, error: asciiError } =
+      await supabaseClient.storage
+        .from("ascii-images")
+        .createSignedUrl(item.ascii_path, 60);
+
+    if (originalError || asciiError) {
+      console.error("Storage error:", originalError || asciiError);
+      continue;
+    }
+
+    const container = document.createElement("div");
+
+    container.innerHTML = `
+      <img src="${originalData.signedUrl}" width="200">
+      <img src="${asciiData.signedUrl}" width="200">
+      <hr>
+    `;
+
+    output.appendChild(container);
+  }
+};
+
+
+// 🟢 WEBCAM
+webcamBtn.onclick = async () => {
+  video.hidden = false;
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+
+  setInterval(() => {
+    processImage(video);
+  }, 100);
+};

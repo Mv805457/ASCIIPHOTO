@@ -1,24 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>ASCII Studio</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>MadAscii</title>
 
-  <!-- PNG Export Library -->
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- html2canvas -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<style>
+body {
+  background: black;
+  color: #00ff00;
+  font-family: monospace;
+  text-align: center;
+}
+
+.light {
+  background: white;
+  color: black;
+}
+
+button, input, select {
+  margin: 5px;
+  padding: 6px 12px;
+  background: black;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+}
+
+#app {
+  display: none;
+}
+
+pre {
+  font-size: 8px;
+  line-height: 8px;
+  white-space: pre;
+}
+
+img {
+  margin: 10px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>🎨 ASCII Studio</h1>
+<h1>MadAscii</h1>
 
-<div class="controls">
+<!-- AUTH SECTION -->
+<div id="authSection">
+  <button id="googleLogin">Sign in with Google</button>
+  <button id="logoutBtn" style="display:none;">Logout</button>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <br>
 
   <input type="file" id="upload" accept="image/*">
 
   <label>Density</label>
-  <input type="range" id="density" min="2" max="15" value="8">
+  <input type="range" id="density" min="2" max="20" value="8">
 
   <input type="text" id="customChars" placeholder="Custom characters">
 
@@ -30,21 +77,20 @@
 
   <button id="themeToggle">Toggle Theme</button>
   <button id="downloadPNG">Download PNG</button>
-  <button id="terminalExport">Download TXT</button>
-  <button id="webcamBtn">Start Webcam</button>
-  <button id="captureBtn">Capture Frame</button>
+  <button id="saveBtn">Save</button>
+  <button id="historyBtn">History</button>
+  <button id="webcamBtn">Webcam</button>
+
+  <br><br>
+
+  <video id="webcam" autoplay hidden></video>
+  <canvas id="canvas" hidden></canvas>
+
+  <pre id="output"></pre>
 
 </div>
 
-<div id="dropZone">Drag & Drop Image Here</div>
-
-<video id="webcam" autoplay hidden></video>
-<canvas id="canvas" hidden></canvas>
-
-<pre id="output"></pre>
-
-<script src="utils.js"></script>
 <script src="script.js"></script>
-
 </body>
 </html>
+

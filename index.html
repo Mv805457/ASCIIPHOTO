@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>ASCII Studio</title>
   <link rel="stylesheet" href="style.css">
+
+  <!-- PNG Export Library -->
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
+
 <body>
 
 <h1>🎨 ASCII Studio</h1>
@@ -11,9 +16,9 @@
 <div class="controls">
 
   <input type="file" id="upload" accept="image/*">
-  
-  <input type="range" id="density" min="2" max="20" value="8">
+
   <label>Density</label>
+  <input type="range" id="density" min="2" max="15" value="8">
 
   <input type="text" id="customChars" placeholder="Custom characters">
 
@@ -25,8 +30,9 @@
 
   <button id="themeToggle">Toggle Theme</button>
   <button id="downloadPNG">Download PNG</button>
-  <button id="terminalExport">Terminal Mode</button>
-  <button id="webcamBtn">Webcam ASCII</button>
+  <button id="terminalExport">Download TXT</button>
+  <button id="webcamBtn">Start Webcam</button>
+  <button id="captureBtn">Capture Frame</button>
 
 </div>
 
@@ -39,5 +45,6 @@
 
 <script src="utils.js"></script>
 <script src="script.js"></script>
+
 </body>
 </html>

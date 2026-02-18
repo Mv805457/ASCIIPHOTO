@@ -44,97 +44,6 @@ MadAscii is a powerful web-based ASCII art generator that brings your images to 
 - **CSS3** - Responsive styling and animations
 - **Web APIs** - MediaDevices, FileReader, Drag & Drop
 
-### CLI Tool
-- **Node.js** - Runtime environment
-- **Canvas (node-canvas)** - Image processing for Node.js
-- **Commander.js** - CLI argument parsing
-- **Chalk** - Terminal color output
-
-## 📦 Installation
-
-### Web Application
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/madascii.git
-cd madascii
-```
-
-2. Open `index.html` in your browser or serve with a local server:
-```bash
-# Using Python
-python -m http.server 8000
-
-# Using Node.js
-npx serve
-
-# Using VS Code Live Server extension
-# Right-click index.html and select "Open with Live Server"
-```
-
-3. Navigate to `http://localhost:8000` (or your server's URL)
-
-### CLI Version
-
-1. Navigate to the CLI directory:
-```bash
-cd madascii/cli
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Link the CLI globally (optional):
-```bash
-npm link
-```
-
-## 💻 CLI Usage
-
-### Basic Usage
-
-```bash
-# Convert an image to ASCII
-node cli.js input.jpg
-
-# Specify output file
-node cli.js input.jpg -o output.txt
-
-# Custom width
-node cli.js input.jpg -w 100
-
-# Use custom character set
-node cli.js input.jpg -c "@%#*+=-:. "
-
-# Colored output
-node cli.js input.jpg --color
-```
-
-### CLI Options
-
-| Option | Alias | Description | Default |
-|--------|-------|-------------|---------|
-| `--output <file>` | `-o` | Output file path | `stdout` |
-| `--width <number>` | `-w` | Output width in characters | `80` |
-| `--charset <string>` | `-c` | Character set (dense to light) | `@%#*+=-:. ` |
-| `--color` | | Enable colored output | `false` |
-| `--invert` | `-i` | Invert character density | `false` |
-
-### Examples
-
-```bash
-# Create a detailed ASCII portrait
-madascii portrait.jpg -w 120 -o portrait.txt
-
-# Generate colored ASCII art for terminal
-madascii landscape.png --color -w 100
-
-# Use custom characters for artistic effect
-madascii photo.jpg -c "█▓▒░ " -w 80 -o art.txt
-```
-
 ## 🎯 Usage Guide
 
 ### Web Application
@@ -182,22 +91,12 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Inspired by classic ASCII art generators
-- Thanks to all contributors and users
-- Built with ❤️ by [Your Name]
-
 ---
 
 <div align="center">
 
 **[⬆ Back to Top](#madascii-)**
 
-Made with ☕ and JavaScript
+Made with ☕☕☕☕☕☕☕☕☕☕☕☕☕☕☕
 
 </div>

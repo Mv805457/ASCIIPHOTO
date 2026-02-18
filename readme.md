@@ -4,8 +4,6 @@
 
 [![Demo](https://img.shields.io/badge/demo-live-brightgreen)](https://clever-pasca-48fe08.netlify.app/)
 [![Figma](https://img.shields.io/badge/figma-showcase-purple)](https://tawny-badger-21464891.figma.site/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
 MadAscii is a powerful web-based ASCII art generator that brings your images to life through the magic of text characters. Built with vanilla JavaScript and HTML5 Canvas, it offers real-time conversion with extensive customization options.
 
 ## ✨ Features
